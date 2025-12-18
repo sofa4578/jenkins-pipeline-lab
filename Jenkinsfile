@@ -15,8 +15,13 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                echo 'Deploy stage (local)'
-                sh 'docker images'
+                echo 'Pushing to DockerHub...'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker tag myapp:latest $DOCKER_USER/my-jenkins-app:latest'
+                    sh 'docker push $DOCKER_USER/my-jenkins-app:latest'
+                }
             }
         }
     }
